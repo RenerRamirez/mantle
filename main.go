@@ -23,6 +23,8 @@ type WordJson struct {
   Score int `json:"score"`
   Seq int `json:"seq"`
   Gloss []GlossObj `json:"gloss"`
+  Compound []string `json:"compound,omitempty"`
+  Components []interface{} `json:"components,omitempty"`
   Conj []interface{} `json:"conj"`
 }
 
@@ -35,10 +37,13 @@ func main() {
 
   scanner := bufio.NewScanner(file)
 
+  cnt := 0
+  _ = cnt
   for scanner.Scan() {
     ex_sentence := scanner.Text()
 
     cmd := exec.Command("ichiran-cli", "-f", ex_sentence)
+    fmt.Println("【",ex_sentence,"】")
     var out strings.Builder
     cmd.Stdout = &out
 
@@ -75,72 +80,11 @@ func main() {
     }
     */
 
-    const jsonStream = `
-    [
-      [
-        [
-          [
-            "hawai",
-            {
-              "reading": "ハワイ",
-              "text": "ハワイ",
-              "kana": "ハワイ",
-              "score": 384,
-              "seq": 1096400,
-              "gloss": [
-                {
-                  "pos": "[n]",
-                  "gloss": "Hawaii; Hawai'i"
-                }
-              ],
-              "conj": []
-            },
-            []
-          ],
-          [
-            "arizona",
-            {
-              "reading": "ハワイ",
-              "text": "ハワイ",
-              "kana": "ハワイ",
-              "score": 384,
-              "seq": 1000,
-              "gloss": [
-                {
-                  "pos": "[n]",
-                  "gloss": "Hawaii; Hawai'i"
-                }
-              ],
-              "conj": []
-            },
-            []
-          ],
-          [
-            "washington",
-            {
-              "reading": "ハワイ",
-              "text": "ハワイ",
-              "kana": "ハワイ",
-              "score": 384,
-              "seq": 6969,
-              "gloss": [
-                {
-                  "pos": "[n]",
-                  "gloss": "Hawaii; Hawai'i"
-                }
-              ],
-              "conj": []
-            },
-            []
-          ]
-        ],
-        1999
-      ],
-      "."
-    ]
-`
-    parseFinalArray(jsonStream)
-    break
+    parseFinalArray(parsed_json)
+    // if cnt == 5 {
+    //   break
+    // }
+    // cnt++
   }
 
   if err := scanner.Err(); err != nil {
@@ -162,15 +106,20 @@ func parseFinalArray(jsonStream string) {
   sentences := template[0]    .([]interface{})
 
   /* ["word",{},[]], ["word",{},[]], ... */
-  for k, _ := range sentences {
-    data := sentences[k].([]interface{})
+  data := sentences[0].([]interface{})
 
-    term, ok := data[0].(string) 
+  for k, _ := range data {
+    wordinfo, ok := data[k].([]interface{})
+    if !ok {
+       log.Fatalf("Expected wordinfo at data[0]: %v", err)
+    }
+
+    term, ok := wordinfo[0].(string) 
     if !ok {
       log.Fatalf("Expected string at data[0]: %v", err)
     }
 
-    objMap, ok := data[1].(map[string]interface{})
+    objMap, ok := wordinfo[1].(map[string]interface{})
     if !ok {
       log.Fatalf("Expected obj at data[1]: %v", err)
     }
@@ -186,14 +135,14 @@ func parseFinalArray(jsonStream string) {
       log.Fatalf("Failed to unmarshal %v", err)
     }
 
-    emptyArr, ok := data[2].([]interface{})
+    emptyArr, ok := wordinfo[2].([]interface{})
     if !ok {
-      log.Fatalf("Expected empty[] at data[3]: %v", err)
+      log.Fatalf("Expected empty[] at wordinfo[2]: %v", err)
     }
     _ = emptyArr
     _ = term
 
-    fmt.Println(myword.Seq)
+    fmt.Println(myword.Text)
   }
   /* ["word",{},[]], ["word",{},[]], ... */
 }
