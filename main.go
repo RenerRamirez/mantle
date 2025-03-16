@@ -78,59 +78,62 @@ func main() {
     const jsonStream = `
     [
       [
-        "hawai",
-        {
-          "reading": "ハワイ",
-          "text": "ハワイ",
-          "kana": "ハワイ",
-          "score": 384,
-          "seq": 1096400,
-          "gloss": [
-            {
-              "pos": "[n]",
-              "gloss": "Hawaii; Hawai'i"
-            }
-          ],
-          "conj": []
-        },
-        []
+        [
+          "hawai",
+          {
+            "reading": "ハワイ",
+            "text": "ハワイ",
+            "kana": "ハワイ",
+            "score": 384,
+            "seq": 1096400,
+            "gloss": [
+              {
+                "pos": "[n]",
+                "gloss": "Hawaii; Hawai'i"
+              }
+            ],
+            "conj": []
+          },
+          []
+        ],
+        [
+          "arizona",
+          {
+            "reading": "ハワイ",
+            "text": "ハワイ",
+            "kana": "ハワイ",
+            "score": 384,
+            "seq": 1000,
+            "gloss": [
+              {
+                "pos": "[n]",
+                "gloss": "Hawaii; Hawai'i"
+              }
+            ],
+            "conj": []
+          },
+          []
+        ],
+        [
+          "washington",
+          {
+            "reading": "ハワイ",
+            "text": "ハワイ",
+            "kana": "ハワイ",
+            "score": 384,
+            "seq": 6969,
+            "gloss": [
+              {
+                "pos": "[n]",
+                "gloss": "Hawaii; Hawai'i"
+              }
+            ],
+            "conj": []
+          },
+          []
+        ]
       ],
-      [
-        "arizona",
-        {
-          "reading": "ハワイ",
-          "text": "ハワイ",
-          "kana": "ハワイ",
-          "score": 384,
-          "seq": 1000,
-          "gloss": [
-            {
-              "pos": "[n]",
-              "gloss": "Hawaii; Hawai'i"
-            }
-          ],
-          "conj": []
-        },
-        []
-      ],
-      [
-        "washington",
-        {
-          "reading": "ハワイ",
-          "text": "ハワイ",
-          "kana": "ハワイ",
-          "score": 384,
-          "seq": 6969,
-          "gloss": [
-            {
-              "pos": "[n]",
-              "gloss": "Hawaii; Hawai'i"
-            }
-          ],
-          "conj": []
-        },
-        []
-      ]
+      1999
     ]
 `
     parseFinalArray(jsonStream)
@@ -151,10 +154,12 @@ func parseFinalArray(jsonStream string) {
   if err != nil {
     log.Fatalf("Failed to decode JSON: %v", err)
   }
+  
+  sentences := template[0].([]interface{})
 
   /* ["word",{},[]], ["word",{},[]], ... */
-  for k, _ := range template {
-    data := template[k].([]interface{})
+  for k, _ := range sentences {
+    data := sentences[k].([]interface{})
 
     term, ok := data[0].(string) 
     if !ok {
@@ -185,7 +190,7 @@ func parseFinalArray(jsonStream string) {
     _ = term
 
     fmt.Println(myword.Seq)
-    /* ["word",{},[]], ["word",{},[]], ... */
   }
+  /* ["word",{},[]], ["word",{},[]], ... */
 }
 
