@@ -76,6 +76,7 @@ func main() {
     */
 
     const jsonStream = `
+    [
       [
         "hawai",
         {
@@ -93,7 +94,44 @@ func main() {
           "conj": []
         },
         []
+      ],
+      [
+        "arizona",
+        {
+          "reading": "ハワイ",
+          "text": "ハワイ",
+          "kana": "ハワイ",
+          "score": 384,
+          "seq": 1000,
+          "gloss": [
+            {
+              "pos": "[n]",
+              "gloss": "Hawaii; Hawai'i"
+            }
+          ],
+          "conj": []
+        },
+        []
+      ],
+      [
+        "washington",
+        {
+          "reading": "ハワイ",
+          "text": "ハワイ",
+          "kana": "ハワイ",
+          "score": 384,
+          "seq": 6969,
+          "gloss": [
+            {
+              "pos": "[n]",
+              "gloss": "Hawaii; Hawai'i"
+            }
+          ],
+          "conj": []
+        },
+        []
       ]
+    ]
 `
     parseFinalArray(jsonStream)
     break
@@ -108,41 +146,46 @@ func parseFinalArray(jsonStream string) {
   dec := json.NewDecoder(strings.NewReader(jsonStream))
 
   /* ["word",{},[]], ["word",{},[]], ... */
-  var data []interface{}
-  err := dec.Decode(&data)
+  var template []interface{}
+  err := dec.Decode(&template)
   if err != nil {
     log.Fatalf("Failed to decode JSON: %v", err)
   }
 
-  term, ok := data[0].(string) 
-  if !ok {
-    log.Fatalf("Expected string at data[0]: %v", err)
-  }
-  _ = term
-
-  objMap, ok := data[1].(map[string]interface{})
-  if !ok {
-    log.Fatalf("Expected obj at data[1]: %v", err)
-  }
-
-  var myword WordJson
-  wordbytes, err := json.Marshal(objMap)
-  if err != nil {
-    log.Fatalf("Failed to marshal %v", err)
-  }
-
-  err = json.Unmarshal(wordbytes, &myword)
-  if err != nil {
-    log.Fatalf("Failed to unmarshal %v", err)
-  }
-
-  emptyArr, ok := data[2].([]interface{})
-  if !ok {
-    log.Fatalf("Expected empty[] at data[3]: %v", err)
-  }
-  _ = emptyArr
-
-  fmt.Println(myword.Seq)
   /* ["word",{},[]], ["word",{},[]], ... */
+  for k, _ := range template {
+    data := template[k].([]interface{})
+
+    term, ok := data[0].(string) 
+    if !ok {
+      log.Fatalf("Expected string at data[0]: %v", err)
+    }
+
+    objMap, ok := data[1].(map[string]interface{})
+    if !ok {
+      log.Fatalf("Expected obj at data[1]: %v", err)
+    }
+
+    var myword WordJson
+    wordbytes, err := json.Marshal(objMap)
+    if err != nil {
+      log.Fatalf("Failed to marshal %v", err)
+    }
+
+    err = json.Unmarshal(wordbytes, &myword)
+    if err != nil {
+      log.Fatalf("Failed to unmarshal %v", err)
+    }
+
+    emptyArr, ok := data[2].([]interface{})
+    if !ok {
+      log.Fatalf("Expected empty[] at data[3]: %v", err)
+    }
+    _ = emptyArr
+    _ = term
+
+    fmt.Println(myword.Seq)
+    /* ["word",{},[]], ["word",{},[]], ... */
+  }
 }
 
