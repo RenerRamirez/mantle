@@ -29,7 +29,7 @@ type WordJson struct {
 }
 
 func main() {
-  file, err := os.Open("../mantle/sentences.txt")
+  file, err := os.Open("sentences.txt")
   if err != nil {
     log.Fatal(err)
   }
@@ -124,13 +124,23 @@ func parseFinalArray(jsonStream string) {
       log.Fatalf("Expected obj at data[1]: %v", err)
     }
 
-    var myword WordJson
-    wordbytes, err := json.Marshal(objMap)
+    wordObj := objMap
+    alt, ok := objMap["alternative"].([]interface{})
+    if ok {
+      // only check the first entry in "alternative"
+      a, ok := alt[0].(map[string]interface{})
+      if ok {
+        wordObj = a
+      } // !ok should be unreachable
+    }
+
+    var word WordJson
+    wordBytes, err := json.Marshal(wordObj) // objMap is the same as 'a' in else
     if err != nil {
       log.Fatalf("Failed to marshal %v", err)
     }
 
-    err = json.Unmarshal(wordbytes, &myword)
+    err = json.Unmarshal(wordBytes, &word)
     if err != nil {
       log.Fatalf("Failed to unmarshal %v", err)
     }
@@ -142,7 +152,7 @@ func parseFinalArray(jsonStream string) {
     _ = emptyArr
     _ = term
 
-    fmt.Println(myword.Text)
+    fmt.Println(word.Text)
   }
   /* ["word",{},[]], ["word",{},[]], ... */
 }
